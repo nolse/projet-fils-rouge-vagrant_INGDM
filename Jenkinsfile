@@ -149,25 +149,25 @@ pipeline {
         // Les r√¥les odoo_role, pgadmin_role, webapp_role,
         // jenkins_role sont appel√©s avec les bonnes variables
         // ----------------------------------------------------
-        stage('Deploy') {
-            steps {
-                echo 'Ì∫Ä D√©ploiement via Ansible...'
-                sh """
-                    # Rendre la cl√© SSH utilisable
-                    chmod 600 ${ANSIBLE_KEY}
-
-                    # Lancer le playbook Ansible
-                    ansible-playbook \
-                        -i inventaire/hosts.yml \
-                        --private-key=${ANSIBLE_KEY} \
-                        -e "webapp_image=${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.APP_VERSION}" \
-                        -e "odoo_url=${env.ODOO_URL}" \
-                        -e "pgadmin_url=${env.PGADMIN_URL}" \
-                        playbook.yml
-                """
-            }
-        }
+     stage('Deploy') {
+         steps {
+            echo 'Ì∫Ä D√©ploiement via Ansible...'
+            // Utilisation de guillemets simples ''' intentionnelle :
+            // √©vite l'interpolation Groovy sur les secrets (ANSIBLE_KEY)
+            // Le shell r√©sout $ANSIBLE_KEY lui-m√™me ‚Üí plus s√©curis√©
+            // Voir : https://jenkins.io/redirect/groovy-string-interpolation
+            sh '''
+            chmod 600 $ANSIBLE_KEY
+            ansible-playbook \
+                -i inventaire/hosts.yml \
+                --private-key=$ANSIBLE_KEY \
+                -e "webapp_image=$DOCKER_HUB_USER/$IMAGE_NAME:$APP_VERSION" \
+                -e "odoo_url=$ODOO_URL" \
+                -e "pgadmin_url=$PGADMIN_URL" \
+                playbook.yml
+        '''
     }
+}
 
     // --------------------------------------------------------
     // Notifications post-pipeline
