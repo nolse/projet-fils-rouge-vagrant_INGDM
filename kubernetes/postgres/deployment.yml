@@ -1,0 +1,57 @@
+# =============================================================
+# DEPLOYMENT — PostgreSQL
+# =============================================================
+# Le Deployment gère le pod PostgreSQL.
+# Il lit les credentials depuis le Secret icgroup-secrets
+# et monte le PVC pour persister les données.
+# =============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: icgroup
+  labels:
+    app: postgres
+    env: prod
+spec:
+  replicas: 1                   # 1 seule instance (BDD ne se scale pas facilement)
+  selector:
+    matchLabels:
+      app: postgres             # Le Deployment gère les pods avec ce label
+  template:
+    metadata:
+      labels:
+        app: postgres           # Label du pod — doit correspondre au selector
+        env: prod
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13    # Même version que dans docker-compose
+          ports:
+            - containerPort: 5432
+          env:
+            # On injecte les variables depuis le Secret
+            # Jamais de mot de passe en clair ici !
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets   # Nom du Secret
+                  key: POSTGRES_DB        # Clé dans le Secret
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data  # Dossier data de PostgreSQL
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc       # Référence au PVC créé ci-dessus

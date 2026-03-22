@@ -1,0 +1,37 @@
+# =============================================================
+# CONFIGMAP — pgAdmin servers.json
+# =============================================================
+# Un ConfigMap stocke des fichiers de configuration
+# non sensibles (contrairement aux Secrets).
+#
+# Ici on préconfigure la connexion à PostgreSQL dans pgAdmin
+# pour ne pas avoir à la saisir manuellement à chaque fois.
+# C'est l'équivalent du servers.json de notre docker-compose.
+#
+# Le mot de passe N'EST PAS ici (c'est non sensible)
+# il sera saisi à la première connexion dans l'interface.
+# =============================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-servers-config
+  namespace: icgroup
+  labels:
+    app: pgadmin
+    env: prod
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": "PostgreSQL icgroup",
+          "Group": "Servers",
+          "Host": "postgres-service",
+          "Port": 5432,
+          "MaintenanceDB": "odoo",
+          "Username": "odoo",
+          "SSLMode": "prefer"
+        }
+      }
+    }

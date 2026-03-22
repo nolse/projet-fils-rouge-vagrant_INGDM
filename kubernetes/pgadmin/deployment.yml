@@ -1,0 +1,60 @@
+# =============================================================
+# DEPLOYMENT — pgAdmin4
+# =============================================================
+# pgAdmin est l'interface web pour administrer PostgreSQL.
+# Il a besoin des credentials de connexion (email + password)
+# injectés depuis le Secret.
+#
+# La préconfiguration de la connexion BDD se fait via
+# le fichier servers.json monté en ConfigMap (voir plus bas).
+# =============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: icgroup
+  labels:
+    app: pgadmin
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+        env: prod
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4
+          ports:
+            - containerPort: 80
+          env:
+            # Email de connexion à l'interface pgAdmin
+            - name: PGADMIN_DEFAULT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets
+                  key: PGADMIN_EMAIL
+
+            # Mot de passe de connexion à l'interface pgAdmin
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets
+                  key: PGADMIN_PASSWORD
+          volumeMounts:
+            # Monte le fichier servers.json pour préconfigurer
+            # la connexion à PostgreSQL au démarrage de pgAdmin
+            - name: pgadmin-config
+              mountPath: /pgadmin4/servers.json
+              subPath: servers.json             # On monte juste ce fichier,
+                                                # pas tout le dossier
+      volumes:
+        - name: pgadmin-config
+          configMap:
+            name: pgadmin-servers-config        # Référence au ConfigMap ci-dessous

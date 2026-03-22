@@ -1,0 +1,28 @@
+# =============================================================
+# SERVICE — Odoo
+# =============================================================
+# Type NodePort : accessible depuis l'extérieur du cluster
+# via l'IP de Minikube + le nodePort.
+#
+# Accès : http://<minikube-ip>:30069
+#
+# Les NodePorts sont toujours dans la plage 30000-32767
+# C'est une contrainte Kubernetes.
+# =============================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo-service
+  namespace: icgroup
+  labels:
+    app: odoo
+    env: prod
+spec:
+  type: NodePort
+  selector:
+    app: odoo                   # Cible les pods avec le label app=odoo
+  ports:
+    - port: 8069                # Port interne du Service
+      targetPort: 8069          # Port du conteneur Odoo
+      nodePort: 30069           # Port exposé sur le nœud Minikube (accès externe)

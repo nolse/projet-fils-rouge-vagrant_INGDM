@@ -1,0 +1,95 @@
+# =============================================================
+# DEPLOYMENT - Odoo 13
+# =============================================================
+# Odoo a besoin de connaitre l'adresse de PostgreSQL.
+# Il se connecte via le hostname "postgres-service" -
+# c'est exactement le nom du Service PostgreSQL qu'on a cree.
+# Kubernetes resout ce nom automatiquement dans le namespace.
+# =============================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+  namespace: icgroup
+  labels:
+    app: odoo
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odoo
+  template:
+    metadata:
+      labels:
+        app: odoo
+        env: prod
+    spec:
+      containers:
+        - name: odoo
+          image: odoo:13.0
+
+          # -----------------------------------------------------------
+          # STRATEGIE DE CONFIGURATION
+          # -----------------------------------------------------------
+          # Odoo lit sa configuration depuis /etc/odoo/odoo.conf.
+          # Ce fichier est monte dans le pod via un ConfigMap (odoo-config)
+          # et contient les parametres de connexion a PostgreSQL.
+          #
+          # Pourquoi un ConfigMap et pas les variables d'environnement ?
+          # Odoo ignore les variables HOST/PORT quand on utilise command/args.
+          # Le fichier odoo.conf est la seule facon fiable de configurer
+          # la connexion TCP vers postgres-service dans Kubernetes.
+          #
+          # Note sur --init=base :
+          # Cette option a ete utilisee au premier demarrage pour creer
+          # les tables Odoo dans PostgreSQL. Elle a ete retiree ensuite
+          # car elle reinitialiserait la BDD a chaque redemarrage du pod.
+          # La base est desormais initialisee - login : admin / admin
+          # -----------------------------------------------------------
+          command: ["odoo"]
+          args:
+            - "--config=/etc/odoo/odoo.conf"  # Charge le fichier de config via ConfigMap
+            - "--update=web"          # Regenere les assets CSS/JS au demarrage
+        
+          ports:
+            - containerPort: 8069
+
+          volumeMounts:
+            # Monte le fichier odoo.conf depuis le ConfigMap
+            # au chemin attendu par Odoo dans le conteneur
+            - name: odoo-config
+              mountPath: /etc/odoo/odoo.conf
+              subPath: odoo.conf        # Monte uniquement ce fichier, pas tout le dossier
+            # Persiste le filestore Odoo (assets CSS/JS + fichiers attaches)
+            - name: odoo-storage
+              mountPath: /var/lib/odoo
+
+          env:
+            # Variables en complement du fichier conf
+            # Credentials lus depuis le Secret (jamais en clair !)
+            - name: HOST
+              value: "postgres-service"
+            - name: PORT
+              value: "5432"
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets
+                  key: POSTGRES_USER
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: icgroup-secrets
+                  key: POSTGRES_PASSWORD
+
+      volumes:
+        # Le ConfigMap odoo-config est monte comme un fichier dans le pod
+        # Kubernetes injecte le contenu de odoo.conf a /etc/odoo/odoo.conf
+        - name: odoo-config
+          configMap:
+            name: odoo-config
+        - name: odoo-storage
+          persistentVolumeClaim:
+            claimName: odoo-pvc

@@ -1,0 +1,14 @@
+# =============================================================
+# NAMESPACE — icgroup
+# =============================================================
+# Un namespace est un espace d'isolation dans Kubernetes.
+# Toutes les ressources du projet (pods, services, secrets...)
+# seront créées DANS ce namespace, séparées du reste du cluster.
+# =============================================================
+
+apiVersion: v1          # Version de l'API Kubernetes pour ce type de ressource
+kind: Namespace         # Le type de ressource qu'on crée
+metadata:
+  name: icgroup         # Nom du namespace — on l'utilisera partout avec -n icgroup
+  labels:
+    env: prod           # Label requis par le projet — identifie l'environnement

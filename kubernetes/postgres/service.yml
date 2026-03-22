@@ -1,0 +1,26 @@
+# =============================================================
+# SERVICE — PostgreSQL
+# =============================================================
+# Ce Service est de type ClusterIP : il n'est accessible
+# QUE depuis l'intérieur du cluster (par Odoo et pgAdmin).
+# PostgreSQL ne doit jamais être exposé à l'extérieur !
+#
+# Les autres pods s'y connectent via le hostname :
+#   "postgres-service" port 5432
+# =============================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service        # Hostname utilisé par Odoo pour se connecter
+  namespace: icgroup
+  labels:
+    app: postgres
+    env: prod
+spec:
+  type: ClusterIP               # Interne uniquement — pas de port exposé dehors
+  selector:
+    app: postgres               # Cible les pods avec le label app=postgres
+  ports:
+    - port: 5432                # Port exposé par le Service
+      targetPort: 5432          # Port du conteneur PostgreSQL

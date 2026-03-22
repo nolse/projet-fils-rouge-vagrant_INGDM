@@ -1,0 +1,22 @@
+# =============================================================
+# PVC - Odoo filestore
+# =============================================================
+# Persiste le dossier /var/lib/odoo qui contient les assets
+# CSS/JS generes et les fichiers attaches (images, documents).
+# Sans ce PVC, tout est perdu au redemarrage du pod.
+# =============================================================
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-pvc
+  namespace: icgroup
+  labels:
+    app: odoo
+    env: prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

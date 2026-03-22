@@ -1,0 +1,25 @@
+# =============================================================
+# PERSISTENTVOLUMECLAIM — PostgreSQL
+# =============================================================
+# Un PVC (PersistentVolumeClaim) réserve un espace disque
+# sur le cluster. Sans lui, toutes les données de la BDD
+# disparaissent dès que le pod redémarre.
+#
+# Analogie : c'est comme un disque dur externe branché
+# sur le pod. Même si le pod est supprimé, le disque reste.
+# =============================================================
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc            # Nom référencé dans le Deployment
+  namespace: icgroup
+  labels:
+    env: prod
+spec:
+  accessModes:
+    - ReadWriteOnce             # Un seul pod peut lire/écrire à la fois
+                                # (suffisant pour une BDD mono-instance)
+  resources:
+    requests:
+      storage: 2Gi              # On réserve 2 Go pour les données PostgreSQL

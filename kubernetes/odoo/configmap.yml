@@ -1,0 +1,28 @@
+# =============================================================
+# CONFIGMAP - odoo.conf
+# =============================================================
+# Stocke le fichier de configuration Odoo.
+# Monte dans le pod a /etc/odoo/odoo.conf
+#
+# Contient uniquement les parametres de connexion BDD.
+# L'option init=base ne fonctionne PAS ici - elle doit
+# etre passee en argument CLI (voir deployment.yml).
+# =============================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odoo-config
+  namespace: icgroup
+  labels:
+    app: odoo
+    env: prod
+data:
+  odoo.conf: |
+    [options]
+    db_host = postgres-service
+    db_port = 5432
+    db_user = odoo
+    db_password = odoo_password
+    db_name = odoo
+
