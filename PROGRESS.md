@@ -17,7 +17,7 @@
       - [x] odoo/docker-compose.yml
       - [x] pgadmin/docker-compose.yml + servers.json
       - [x] jenkins-tools/
-- [x] Partie 2 : CI/CD Jenkins + Ansible
+- [x] Partie 2 : CI/CD Jenkins + Ansible - COMPLETE
       - [x] roles : odoo_role / pgadmin_role / webapp_role / jenkins_role
       - [x] inventaire dynamique Terraform->Ansible
       - [x] playbook.yml + ansible.cfg + requirements.yml
@@ -30,31 +30,35 @@
       - [x] Configurer credentials Jenkins (docker-hub + ansible-ssh-key)
       - [x] Creer job Jenkins (pointer vers repo GitHub)
       - [x] Tester pipeline end-to-end
-- [x] Partie 3 : Kubernetes (Minikube) - EN COURS
-      - [x] Minikube v1.38.1 installe + cluster demarre (driver Docker)
-      - [x] kubectl v1.34.1 disponible
-      - [x] Namespace icgroup (env=prod)
+- [x] Partie 3 : Kubernetes (Minikube) - COMPLETE
+      - [x] Minikube v1.38.1 + kubectl v1.34.1 (driver Docker Windows)
+      - [x] Namespace icgroup (label env=prod)
       - [x] Secret icgroup-secrets (5 cles : postgres x3, pgadmin x2)
-      - [x] PostgreSQL - Deployment + Service (ClusterIP) + PVC 2Gi
-      - [x] Odoo - Deployment + Service (NodePort 30069) + ConfigMap odoo.conf
-            - BDD initialisee via --init=base (arg CLI)
+      - [x] PostgreSQL : Deployment + Service ClusterIP + PVC 2Gi
+      - [x] Odoo : Deployment + Service NodePort 30069 + ConfigMap odoo.conf + PVC 1Gi
+            - BDD initialisee via --init=base (retire apres init)
+            - Assets regeneres via --update=web (dans les args)
             - Login : admin / admin
-      - [x] pgAdmin - Deployment + Service (NodePort 30050) + ConfigMap servers.json
+      - [x] pgAdmin : Deployment + Service NodePort 30050 + ConfigMap servers.json
             - Login : admin@icgroup.fr / pgadmin_password
-      - [x] ic-webapp - Deployment + Service (NodePort 30080)
+      - [x] ic-webapp : Deployment + Service NodePort 30080
+            - Boutons Odoo et pgAdmin fonctionnels
       - [x] Script commandes_utils.sh (deploy/status/urls/open/update-urls/clean)
-      - [ ] Retirer --init=base du deployment Odoo (base deja initialisee)
-      - [ ] Fixer les URLs vitrine -> Odoo/pgAdmin (boutons app vitrine)
-      - [ ] HTTPS avec Ingress (bonus)
-      - [ ] Mettre a jour README kubernetes/
+      - [x] Diagrammes SVG : architecture.svg + https_ingress_flow.svg
+      - [x] README kubernetes/
+      - [x] Commit git : "Partie 3 : Kubernetes - deploiement complet icgroup"
+      - [ ] HTTPS avec Ingress (bonus - a faire prochaine session)
+      - [ ] Script reproduction Partie 2 avec sleeps
 
 ## Problemes rencontres et solutions - Partie 3
 | Probleme | Cause | Solution |
 |---|---|---|
-| 192.168.49.2 inaccessible navigateur | IP interne Docker non routee Windows | minikube service -> tunnel 127.0.0.1 |
-| Odoo : ir_module_module does not exist | BDD non initialisee | --init=base en arg CLI |
-| command/args ignore HOST/PORT | Odoo lit son propre conf, pas les env vars | ConfigMap odoo.conf + --config= |
+| 192.168.49.2 inaccessible | IP interne Docker non routee Windows | minikube service -> tunnel 127.0.0.1 |
+| Ports tunnels changent a chaque session | Limitation Minikube driver Docker Windows | Script update-urls dans commandes_utils.sh |
+| Odoo : ir_module_module does not exist | BDD non initialisee | --init=base en arg CLI au premier demarrage |
+| command/args ignore HOST/PORT | Odoo lit son propre conf | ConfigMap odoo.conf + --config= |
 | init = base dans odoo.conf ignore | Option CLI uniquement | Garde dans args du deployment |
-| Encodage YAML Windows | Emojis et tirets speciaux dans commentaires | Supprimer tous caracteres speciaux des YAML |
-| Ports tunnels changent a chaque session | Limitation Minikube driver Docker Windows | Script update-urls pour mettre a jour webapp |
+| Encodage YAML Windows | Emojis et tirets speciaux | Supprimer tous caracteres speciaux des YAML |
+| Page blanche Odoo apres redemarrage | Assets CSS/JS perdus | --update=web dans args + PVC /var/lib/odoo |
+| update-urls corrompt le deployment | sed mal cible | sed avec {n; s|...|...} pour cibler la ligne suivante |
 
