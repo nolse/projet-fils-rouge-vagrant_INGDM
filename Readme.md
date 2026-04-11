@@ -164,6 +164,47 @@ minikube stop
 ---
 
 ## Structure du projet
+
+projet-fils-rouge-vagrant/
+├── Dockerfile                  # Image ic-webapp
+├── releases.txt                # Version + URLs Odoo/pgAdmin
+├── Jenkinsfile                 # Pipeline CI/CD
+├── reproduce_infra.sh          # Script reproduction Partie 2 - AWS
+├── reproduce_deploy.sh         # Script reproduction Partie 2 - Ansible
+├── setup-network.sh            # Regles iptables acces Windows
+├── playbook.yml                # Playbook Ansible principal
+├── ansible.cfg
+├── requirements.yml
+├── terraform/                  # Infrastructure AWS
+│   ├── app/
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   ├── variables.tf
+│   │   └── terraform.tfvars
+│   └── modules/
+│       ├── ec2/
+│       ├── eip/
+│       ├── security_group/
+│       └── ebs/
+├── roles/
+│   ├── odoo_role/
+│   ├── pgadmin_role/
+│   ├── webapp_role/
+│   └── jenkins_role/
+├── inventaire/
+│   ├── generate_inventory.sh
+│   └── hosts.yml.example
+└── kubernetes/
+├── namespace.yml
+├── secrets.yml
+├── commandes_utils.sh
+├── README.md
+├── postgres/
+├── odoo/
+├── pgadmin/
+└── webapp/
+
+
 ## Auteur
 
 Balde — Formation DevOps EazyTraining
