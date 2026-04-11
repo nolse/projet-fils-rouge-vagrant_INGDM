@@ -7,3 +7,9 @@ inventaire/hosts.yml
 *.pem
 *.key
 inventaire/terraform_ips.json
+# Terraform — fichiers generés automatiquement
+terraform/.terraform/
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.backup
+terraform/**/.terraform.lock.hcl
