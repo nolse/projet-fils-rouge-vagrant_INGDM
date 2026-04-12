@@ -122,6 +122,24 @@ sur la VM Vagrant (IP fixe : 192.168.56.100).
 Les NodePorts sont accessibles depuis Windows via des regles iptables
 configurees par `setup-network.sh`. Aucun port-forward necessaire.
 
+### DNS Minikube ne résout pas docker.io (ContainerCreating bloqué)
+**Symptôme** : Les pods restent en `ContainerCreating` indéfiniment
+**Diagnostic** :
+```bash
+minikube ssh "curl -s -o /dev/null -w '%{http_code}' https://registry-1.docker.io/v2/"
+# Si retourne 000 → DNS cassé
+```
+**Fix** :
+```bash
+sudo bash -c 'cat > /etc/docker/daemon.json << EOF
+{
+  "dns": ["8.8.8.8", "8.8.4.4"]
+}
+EOF'
+sudo systemctl restart docker
+minikube start --driver=docker
+```
+
 ### Workflow par session
 ```bash
 # 1. Demarrer Minikube

@@ -19,6 +19,18 @@
 
 set -e  # Arret immediat si une commande echoue
 
+# Gestion de l'argument destroy
+if [ "${1}" = "destroy" ]; then
+    echo "============================================================"
+    echo " Destruction de l infrastructure AWS"
+    echo "============================================================"
+    cd "$(dirname "$0")/terraform/app"
+    terraform init -reconfigure
+    terraform destroy -auto-approve
+    echo "OK Infrastructure detruite"
+    exit 0
+fi
+
 # Chemins relatifs au repo — tout est dans le meme repo
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INFRA_DIR="$SCRIPT_DIR/terraform/app"
