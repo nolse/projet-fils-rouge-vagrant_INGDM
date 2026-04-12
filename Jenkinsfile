@@ -138,14 +138,14 @@ pipeline {
         }
 
         // ----------------------------------------------------
-        // Etape 6 : Generation de l'inventaire Ansible
+        // Etape 6 : Generation de l inventaire Ansible
         // hosts.yml est gitignore - genere dynamiquement
         // depuis les IPs stockees dans Jenkins Global Variables
         // (JENKINS_IP, WEBAPP_IP, ODOO_IP)
         // ----------------------------------------------------
         stage('Generate Inventory') {
             steps {
-                echo ' Generation de l'inventaire Ansible...'
+                echo ' Generation de l inventaire Ansible...'
                 sh '''
                     cat > inventaire/hosts.yml << EOF
 ---
