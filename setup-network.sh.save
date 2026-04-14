@@ -4,6 +4,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
+
 VM_IP="192.168.56.100"
 HOST_IFACE="enp0s8"
 WEBAPP_PORT=30080
@@ -22,31 +23,15 @@ MINIKUBE_SUBNET=$(echo $MINIKUBE_IP | cut -d. -f1-3)
 MINIKUBE_IFACE=$(ip route | grep $MINIKUBE_SUBNET | awk '{print $3}')
 echo -e "${GREEN}>>> Interface bridge : $MINIKUBE_IFACE${NC}"
 
-echo -e "${YELLOW}>>> Detection du NodePort Ingress...${NC}"
-INGRESS_PORT=$(kubectl get svc ingress-nginx-controller -n ingress-nginx \
-  -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}' 2>/dev/null || echo "")
-if [ -z "$INGRESS_PORT" ]; then
-  echo -e "${YELLOW}>>> Ingress non disponible, port 80 non redirige.${NC}"
-else
-  echo -e "${GREEN}>>> NodePort Ingress : $INGRESS_PORT${NC}"
-fi
-
 sudo sysctl -w net.ipv4.ip_forward=1 > /dev/null
 
 # Nettoyage des anciennes règles DNAT
 sudo iptables -t nat -F PREROUTING
 
-# Règles DNAT applicatifs
+# Nouvelles règles DNAT
 sudo iptables -t nat -A PREROUTING -i $HOST_IFACE -p tcp --dport $WEBAPP_PORT -j DNAT --to-destination $MINIKUBE_IP:$WEBAPP_PORT
-sudo iptables -t nat -A PREROUTING -i $HOST_IFACE -p tcp --dport $ODOO_PORT   -j DNAT --to-destination $MINIKUBE_IP:$ODOO_PORT
+sudo iptables -t nat -A PREROUTING -i $HOST_IFACE -p tcp --dport $ODOO_PORT -j DNAT --to-destination $MINIKUBE_IP:$ODOO_PORT
 sudo iptables -t nat -A PREROUTING -i $HOST_IFACE -p tcp --dport $PGADMIN_PORT -j DNAT --to-destination $MINIKUBE_IP:$PGADMIN_PORT
-
-# Règle DNAT Ingress (port 80)
-if [ -n "$INGRESS_PORT" ]; then
-  sudo iptables -t nat -A PREROUTING -i $HOST_IFACE -p tcp --dport 80 -j DNAT --to-destination $MINIKUBE_IP:$INGRESS_PORT
-  echo -e "${GREEN}>>> Règle Ingress ajoutée : port 80 -> $MINIKUBE_IP:$INGRESS_PORT${NC}"
-fi
-
 sudo iptables -t nat -A POSTROUTING -d $MINIKUBE_IP/24 -j MASQUERADE
 
 # Règles FORWARD
@@ -54,20 +39,6 @@ sudo iptables -I FORWARD 1 -i $HOST_IFACE -o $MINIKUBE_IFACE -j ACCEPT
 sudo iptables -I FORWARD 1 -i $MINIKUBE_IFACE -o $HOST_IFACE -j ACCEPT
 
 echo -e "${GREEN}>>> Configuration réseau terminée !${NC}"
-echo ""
-echo -e "======================================="
-echo -e "URLs NodePort (accès direct) :"
-echo -e "======================================="
 echo -e "ic-webapp -> http://$VM_IP:$WEBAPP_PORT"
 echo -e "Odoo      -> http://$VM_IP:$ODOO_PORT"
 echo -e "pgAdmin   -> http://$VM_IP:$PGADMIN_PORT"
-if [ -n "$INGRESS_PORT" ]; then
-echo -e "======================================="
-echo -e "URLs Ingress (noms de domaine) :"
-echo -e "======================================="
-echo -e "ic-webapp -> http://ic-webapp.icgroup.fr"
-echo -e "Odoo      -> http://odoo.icgroup.fr"
-echo -e "pgAdmin   -> http://pgadmin.icgroup.fr"
-echo -e "(Ajouter $VM_IP dans votre fichier hosts Windows)"
-fi
-echo -e "======================================="
