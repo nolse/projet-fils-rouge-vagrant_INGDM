@@ -23,7 +23,7 @@ metadata:
     app: ic-webapp
     env: prod
 spec:
-  replicas: 1                   # stateless - peut etre scale a 2+
+  replicas: 2                   # stateless - peut etre scale a 2+
   selector:
     matchLabels:
       app: ic-webapp
