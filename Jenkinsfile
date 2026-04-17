@@ -152,10 +152,18 @@ all:
     ansible_ssh_private_key_file: $ANSIBLE_KEY
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   children:
+    jenkins:
+      hosts:
+        jenkins_server:
+          ansible_host: $JENKINS_IP
     webapp:
       hosts:
         webapp_server:
           ansible_host: $WEBAPP_IP
+    odoo:
+      hosts:
+        odoo_server:
+          ansible_host: $ODOO_IP
 EOF
                 '''
             }
