@@ -17,18 +17,10 @@
 pipeline {
     agent any
 
-    // --------------------------------------------------------
-    // Variables globales du pipeline
-    // La version est lue depuis releases.txt et utilisee
-    // comme tag de l'image Docker
-    // IPs des serveurs stockees dans Jenkins Global Variables
-    // --------------------------------------------------------
     environment {
-        // Identifiants Docker Hub stockes dans Jenkins Credentials
         DOCKER_HUB_CREDS = credentials('docker-hub-credentials')
         DOCKER_HUB_USER  = 'alphabalde'
         IMAGE_NAME       = 'ic-webapp'
-        // Cle SSH pour Ansible - stockee dans Jenkins Credentials
         ANSIBLE_KEY      = credentials('ansible-ssh-key')
     }
 
@@ -46,13 +38,11 @@ pipeline {
 
         // ----------------------------------------------------
         // Etape 2 : Lecture de la version depuis releases.txt
-        // La version sera utilisee comme tag de l'image Docker
         // ----------------------------------------------------
         stage('Read Version') {
             steps {
                 echo ' Lecture de la version depuis releases.txt...'
                 script {
-                    // Extraction via awk (meme mecanisme que le Dockerfile)
                     env.APP_VERSION = sh(
                         script: "awk '/version/{print \$2}' releases.txt",
                         returnStdout: true
@@ -74,7 +64,6 @@ pipeline {
 
         // ----------------------------------------------------
         // Etape 3 : Build de l'image Docker
-        // Tag = version lue dans releases.txt
         // ----------------------------------------------------
         stage('Build') {
             steps {
@@ -90,14 +79,25 @@ pipeline {
 
         // ----------------------------------------------------
         // Etape 4 : Test du container ic-webapp
-        // Lance un container en local sur Jenkins, verifie qu'il
-        // repond sur le port 8085 et que la page contient "IC GROUP"
-        // Le pipeline echoue si le test ne passe pas (exit 1)
+        // - Vérifie que le container démarre correctement
+        // - Vérifie la taille de l'image (< 200MB)
+        // - Vérifie le code HTTP 200
+        // - Vérifie que le contenu "IC GROUP" est présent
+        // - Vérifie que les liens Odoo et PgAdmin sont bien
+        //   injectés dans la page
+        // Le pipeline échoue si un test ne passe pas (exit 1)
         // ----------------------------------------------------
         stage('Test') {
             steps {
                 echo ' Test du container ic-webapp...'
                 sh """
+                    # 1. Vérifier la taille de l'image avant de lancer le container
+                    IMAGE_SIZE=\$(docker image inspect ${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.APP_VERSION} --format='{{.Size}}')
+                    echo "Taille image : \$IMAGE_SIZE bytes"
+                    [ "\$IMAGE_SIZE" -lt 200000000 ] || exit 1
+                    echo "Taille image OK (< 200MB)"
+
+                    # 2. Lancer le container de test
                     docker run -d \\
                         --name test-ic-webapp \\
                         -p 8085:8080 \\
@@ -105,14 +105,31 @@ pipeline {
                         -e PGADMIN_URL=${env.PGADMIN_URL} \\
                         ${DOCKER_HUB_USER}/${IMAGE_NAME}:${env.APP_VERSION}
                     sleep 5
-                    docker ps | grep test-ic-webapp
+
+                    # 3. Vérifier que le container tourne
+                    docker ps | grep test-ic-webapp || exit 1
+                    echo "Container démarré OK"
+
+                    # 4. Vérifier le code HTTP 200
+                    HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8085)
+                    [ "\$HTTP_CODE" = "200" ] || exit 1
+                    echo "HTTP 200 OK"
+
+                    # 5. Vérifier que la page contient IC GROUP
                     curl -sf http://localhost:8085 | grep -i "IC GROUP" || exit 1
-                    echo "Test ic-webapp OK"
+                    echo "Contenu IC GROUP OK"
+
+                    # 6. Vérifier que le lien Odoo est bien injecté
+                    curl -sf http://localhost:8085 | grep -i "${env.ODOO_URL}" || exit 1
+                    echo "Lien Odoo présent OK"
+
+                    # 7. Vérifier que le lien PgAdmin est bien injecté
+                    curl -sf http://localhost:8085 | grep -i "${env.PGADMIN_URL}" || exit 1
+                    echo "Lien PgAdmin présent OK"
                 """
             }
             post {
                 always {
-                    // Nettoyage du container de test dans tous les cas
                     sh '''
                         docker stop test-ic-webapp || true
                         docker rm   test-ic-webapp || true
@@ -124,8 +141,6 @@ pipeline {
         // ----------------------------------------------------
         // Etape 5 : Push de l'image sur Docker Hub
         // Tag version + tag latest
-        // Guillemets simples intentionnels : evite l'interpolation
-        // Groovy sur DOCKER_HUB_CREDS_PSW (securite credentials)
         // ----------------------------------------------------
         stage('Push') {
             steps {
@@ -142,9 +157,6 @@ pipeline {
 
         // ----------------------------------------------------
         // Etape 6 : Generation de l inventaire Ansible
-        // hosts.yml est gitignore - genere dynamiquement
-        // depuis les IPs stockees dans Jenkins Global Variables
-        // (JENKINS_IP, WEBAPP_IP, ODOO_IP)
         // ----------------------------------------------------
         stage('Generate Inventory') {
             steps {
@@ -177,9 +189,6 @@ EOF
 
         // ----------------------------------------------------
         // Etape 7 : Deploiement via Ansible
-        // Lance le playbook principal sur les 3 serveurs
-        // Guillemets simples intentionnels : evite l'interpolation
-        // Groovy sur ANSIBLE_KEY (securite credentials)
         // ----------------------------------------------------
         stage('Deploy') {
             steps {
@@ -199,9 +208,8 @@ EOF
 
         // ----------------------------------------------------
         // Etape 8 : Verification post-deploiement
-        // Verifie que chaque application repond correctement
-        // sur son serveur apres le deploiement Ansible
-        // Le pipeline echoue si une app ne repond pas (exit 1)
+        // Vérifie que chaque application répond correctement
+        // après le déploiement Ansible
         // ----------------------------------------------------
         stage('Verify Deploy') {
             steps {
@@ -222,12 +230,8 @@ EOF
 
     // --------------------------------------------------------
     // Notifications Slack selon le resultat du pipeline
-    // Necessite : plugin "Slack Notification" + credentials
-    // configures dans Jenkins (token Slack)
+    // Plugin "Slack Notification" requis
     // Canal : #jenkins-eazytraining-alpha-alerte
-    // - SUCCESS  : vert   (#00FF00)
-    // - FAILURE  : rouge  (#FF0000)
-    // - UNSTABLE : orange (#FFA500)
     // --------------------------------------------------------
     post {
         success {
@@ -252,7 +256,6 @@ EOF
             )
         }
         always {
-            // Nettoyage des images Docker non utilisees pour liberer l'espace
             sh 'docker image prune -f || true'
         }
     }
