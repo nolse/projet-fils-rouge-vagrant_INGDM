@@ -92,12 +92,10 @@ pipeline {
                 echo ' Test du container ic-webapp...'
                 sh '''
                     # 1. Vérifier la taille de l'image avant de lancer le container
-                    sh '''
 		    IMAGE_SIZE=$(docker image inspect $DOCKER_HUB_USER/$IMAGE_NAME:$APP_VERSION --format='{{.Size}}')
 		    echo "Taille image : $IMAGE_SIZE bytes"
 		    [ "$IMAGE_SIZE" -lt 200000000 ] || exit 1
 	       	    echo "Taille image OK (< 200MB)"
-	            ''' 
                     # 2. Lancer le container de test
                     docker run -d \\
                         --name test-ic-webapp \\
