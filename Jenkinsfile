@@ -114,7 +114,7 @@ pipeline {
                     HTTP_CODE=$(docker exec test-ic-webapp curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
                     echo "HTTP_CODE=$HTTP_CODE"
                     [ "$HTTP_CODE" = "200" ] || exit 1
-                    echo "HTTP 200 OK"
+                    echo "HTTP 200 OK continuons"
 
                     # 5. Vérifier que la page contient IC GROUP
                     curl -sf http://localhost:8085 | grep -i "IC GROUP" || exit 1
