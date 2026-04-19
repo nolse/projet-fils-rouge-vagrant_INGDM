@@ -127,6 +127,10 @@ docker rm -f test-ic-webapp
 
 L'application accepte deux variables d'environnement configurables : `ODOO_URL` et `PGADMIN_URL`, qui paramètrent les liens affichés sur la page d'accueil.
 
+<p align="center">
+  <img src="./images/DOCKER_HUB.png" width="700">
+</p>
+
 ---
 
 # 4. Partie 2 — CI/CD Jenkins + Ansible + Terraform
@@ -290,6 +294,11 @@ Un test de connexion permet de valider la configuration (message "Success" + not
 # Destruction de l'infrastructure AWS en fin de session
 bash reproduce_infra.sh destroy
 ```
+<p align="center">
+  <img src="./images/IC_WEBAPP_URL_OK.png" width="700">
+  <img src="./images/PGADMIN_URL_OK.png" width="700"><br><br>
+  <img src="./images/ODOO_URL_OK.png" width="700">
+</p>
 
 <p align="center">
   <img src="./images/TEST_CONNEXION_SLACK_OK.png" width="600"><br>
@@ -609,80 +618,73 @@ Pour accéder aux applications via leurs noms de domaine depuis Windows, ajouter
 ## Illustrations du travail
 
 <p align="center">
-  <img src="./images/pipeline.jpeg" width="600">
-  <img src="./images/releases.jpeg" width="600"><br><br>
+  <img src="./images/pipeline.jpeg" width="700">
+  <img src="./images/releases.jpeg" width="700"><br><br>
 
-  <img src="./images/server_def.jpeg" width="600">
   <img src="./images/site_vitrine.jpeg" width="600"><br><br>
 
 </p>
 
-
 <p align="center">
-  <img src="./images/DOCKER_HUB.png" width="600">
-  <img src="./images/DOCKER_PUSH_WEBAPP_V1P1_POSTWEBHOOK.png" width="600"><br><br>
+  <img src="./images/DOCKER_PUSH_WEBAPP_V1P1_POSTWEBHOOK.png" width="700"><br><br>
 </p>
 
 <p align="center">
-  <img src="./images/REPRODUCE_INFRA_OK.png" width="600">
-  <img src="./images/REPRODUCE_INFRA_INPROGRESS.png" width="600"><br><br>
+  <img src="./images/REPRODUCE_INFRA_OK.png" width="700">
+  <img src="./images/REPRODUCE_INFRA_INPROGRESS.png" width="700"><br><br>
 
-  <img src="./images/ansible-ssh-key.png" width="600">
-  <img src="./images/export_var.jpeg" width="600"><br><br>
+  <img src="./images/ansible-ssh-key.png" width="700">
+  <img src="./images/export_var.jpeg" width="700"><br><br>
 </p>
 
 <p align="center">
-  <img src="./images/REPRODUCE_DEPLOY_INPROGRESS.png" width="600">
-  <img src="./images/REPRODUCE_DEPLOY_OK.png" width="600"><br><br>
+  <img src="./images/REPRODUCE_DEPLOY_INPROGRESS.png" width="700">
+  <img src="./images/REPRODUCE_DEPLOY_OK.png" width="700">
 
-  <img src="./images/VARIABLES_ENV1.png" width="600">
-  <img src="./images/VARIABLES_ENV2.png" width="600"><br><br>
+  <img src="./images/VARIABLES_ENV1.png" width="700"><br><br>
+  <img src="./images/VARIABLES_ENV2.png" width="700"><br><br>
 </p>
 
 <p align="center">
-  <img src="./images/JENKINS_URL_OK.png" width="600">
-  <img src="./images/JOB_IC_WEBAPP.png" width="600"><br><br>
+  <img src="./images/JENKINS_URL_OK.png" width="700">
+  <img src="./images/JOB_IC_WEBAPP.png" width="700"><br><br>
 
-  <img src="./images/CREDENTIALS_MAJ_ANSIBLE_SSHKEY_FILE.png" width="600">
-  <img src="./images/PIPELINE_IC_WEBAPP_OK1.png" width="600"><br><br>
+  <img src="./images/CREDENTIALS_MAJ_ANSIBLE_SSHKEY_FILE.png" width="700">
+  <img src="./images/PIPELINE_IC_WEBAPP_OK1.png" width="700"><br><br>
 
-  <img src="./images/PIPELINE_IC_WEBAPP_BLUEOCEAN_OK2.png" width="600">
-  <img src="./images/CONSOLEOUTPUT_PIPELINE_ICWEBAPP.png" width="600"><br><br>
+  <img src="./images/PIPELINE_IC_WEBAPP_BLUEOCEAN_OK2.png" width="700">
+  <img src="./images/CONSOLEOUTPUT_PIPELINE_ICWEBAPP.png" width="700"><br><br>
 </p>
 
 <p align="center">
-  <img src="./images/CONF_WEBHOOK_TRIGGERS.png" width="600">
-  <img src="./images/GITHUB_CONF_WEBHOOK_TRIGGERS.png" width="600"><br><br>
+  <img src="./images/CONF_WEBHOOK_TRIGGERS.png" width="700">
+  <img src="./images/GITHUB_CONF_WEBHOOK_TRIGGERS.png" width="700"><br><br>
 
-  <img src="./images/WEBHOOK_DEPLOY_V1P1_PIPELINE.png" width="600">
-  <img src="./images/WEBHOOK_DEPLOY_V1P1_PIPELINE_SUCCES.png" width="600"><br><br>
+  <img src="./images/WEBHOOK_DEPLOY_V1P1_PIPELINE.png" width="700">
+  <img src="./images/WEBHOOK_DEPLOY_V1P1_PIPELINE_SUCCES.png" width="700"><br><br>
 
-  <img src="./images/DOCKER_PUSH_WEBAPP_V1P1_POSTWEBHOOK.png" width="600">
-  <img src="./images/POST_PIPELINERUN_3URLSOK.png" width="600"><br><br>
+  <img src="./images/DOCKER_PUSH_WEBAPP_V1P1_POSTWEBHOOK.png" width="700">
+  <img src="./images/POST_PIPELINERUN_3URLSOK.png" width="700"><br><br>
 </p>
 
 <p align="center">
-  <img src="./images/IC_WEBAPP_URL_OK.png" width="600">
-  <img src="./images/PGADMIN_URL_OK.png" width="600"><br><br>
+  <img src="./images/PART3_URLS_OK_UP.png" width="700"><br><br>
 
-  <img src="./images/ODOO_URL_OK.png" width="600">
-  <img src="./images/PART3_URLS_OK_UP.png" width="600"><br><br>
-
-  <img src="./images/PART3_LOGIN_URLS_OK.png" width="600">
+  <img src="./images/PART3_LOGIN_URLS_OK.png" width="700">
 </p>
 
 <p align="center">
-  <img src="./images/PART3_PODS_PVC_SVC_UP.png" width="600">
-  <img src="./images/PART3_PODS_REPLICAS_EGAL2.png" width="600"><br><br>
+  <img src="./images/PART3_PODS_PVC_SVC_UP.png" width="700">
+  <img src="./images/PART3_PODS_REPLICAS_EGAL2.png" width="700"><br><br>
 
-  <img src="./images/PART3_INGRESS_METALLB.png" width="600">
-  <img src="./images/PART3_ODOO_URLOK1.png" width="600"><br><br>
+  <img src="./images/PART3_INGRESS_METALLB.png" width="700">
+  <img src="./images/PART3_ODOO_URLOK1.png" width="700"><br><br>
 
-  <img src="./images/PART3_ICWEBAPP_URLOK1.png" width="600">
-  <img src="./images/PART3_PGADMIN_URLOK1.png" width="600"><br><br>
+  <img src="./images/PART3_ICWEBAPP_URLOK1.png" width="700">
+  <img src="./images/PART3_PGADMIN_URLOK1.png" width="700"><br><br>
 
-  <img src="./images/PART3_ODOO_URLOK2.png" width="600">
-  <img src="./images/PART3_PGADMIN_URLOK2.png" width="600"><br><br>
+  <img src="./images/PART3_ODOO_URLOK2.png" width="700">
+  <img src="./images/PART3_PGADMIN_URLOK2.png" width="700"><br><br>
 </p>
 
 
@@ -707,16 +709,6 @@ Pour accéder aux applications via leurs noms de domaine depuis Windows, ajouter
 | PostgreSQL (via pgAdmin) | odoo | odoo_password |
 
 Connexion PostgreSQL depuis pgAdmin : Host = `postgres-service` | Port = `5432` | Database = `odoo`
-
-## Captures d'écran (NodePort)
-
-*[Insérer capture — ic-webapp accessible sur http://192.168.56.100:30080]*
-
-*[Insérer capture — Odoo accessible sur http://192.168.56.100:30069]*
-
-*[Insérer capture — pgAdmin accessible sur http://192.168.56.100:30050]*
-
-*[Insérer capture — Connexion PostgreSQL via pgAdmin (BDD odoo)]*
 
 ---
 
