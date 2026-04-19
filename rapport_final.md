@@ -619,10 +619,6 @@ Pour accéder aux applications via leurs noms de domaine depuis Windows, ajouter
 
 <p align="center">
   <img src="./images/pipeline.jpeg" width="700">
-  <img src="./images/releases.jpeg" width="700"><br><br>
-
-  <img src="./images/site_vitrine.jpeg" width="600"><br><br>
-
 </p>
 
 <p align="center">
